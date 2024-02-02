@@ -25,7 +25,7 @@ class Logs:
         with open("__logs__", "a", encoding="utf-8") as writer:
             writer.write(f"({datetime.now().strftime('%d.%m.%H.%M')}){text}\n")
 
-        if "error" in text.lower() or "traceback" in text.lower():
+        if "error" in text.lower() or "traceback" in text.lower() or "ошибка" in text.lower():
             if self.errors:
                 colored_text = f"{Color.RED}{text}{Color.RESET}" if color is None else f"{color}{text}{Color.RESET}"
                 print(colored_text)

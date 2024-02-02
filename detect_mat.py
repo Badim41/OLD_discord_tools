@@ -1,6 +1,9 @@
 import re
 
 async def moderate_mat_in_sentence(sentence, bad_word=True):
+    """
+    returns: mat:bool, sentence
+    """
     with open("filter_profanity_russian_cached.txt", "r", encoding="utf-8") as reader:
         lines = reader.readlines()
         mat_massive = [line.strip() for line in lines]
@@ -9,12 +12,12 @@ async def moderate_mat_in_sentence(sentence, bad_word=True):
         mat_massive.extend(["говн", "срал", "сраны", "срать"])
 
     sentence = re.sub(r'[^а-яА-ЯёЁa-zA-Z\s]', '', sentence)
-    words = sentence.lower().split()
+    words = sentence.split()
 
     found_mat = False
     for i, word in enumerate(words):
         for mat_word in mat_massive:
-            if word.startswith(mat_word):
+            if word.lower().startswith(mat_word):
                 print("маты!", word, "\nВвод:", sentence)
                 words[i] = '^_^'
                 found_mat = True

@@ -8,6 +8,8 @@ from openai import AsyncOpenAI
 
 import json
 from openai.types.chat import ChatCompletionMessage
+
+from secret import load_secret, SecretKey
 from sql_db import set_get_database_async
 from logs import Logs
 
@@ -128,7 +130,7 @@ class ChatGPT:
         elif isinstance(openAI_moderation, str):
             self.openAI_keys = [openAI_keys]
         else:
-            self.openAI_keys = []
+            self.openAI_keys = load_secret(SecretKey.gpt_keys).split(";")
 
         self.moderation_queue = 0
 
@@ -139,7 +141,7 @@ class ChatGPT:
         elif openAI_keys:
             self.openAI_moderation = openAI_keys
         else:
-            self.openAI_moderation = []
+            self.openAI_moderation = load_secret(SecretKey.gpt_keys).split(";")
 
         if isinstance(auth_keys, list):
             self.openAI_auth_keys = auth_keys
