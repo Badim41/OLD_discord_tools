@@ -8,6 +8,7 @@ import asyncio
 import time
 
 
+
 class Discord_User:
     def __init__(self, username_on_this_server, driver=None, login="", password=""):
         if driver is None:
