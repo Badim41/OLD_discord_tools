@@ -29,6 +29,7 @@ async def moderate_mat_in_sentence(sentence, bad_word=True):
                 words[i] = '^_^'
                 found_mat = True
                 break
+
     if found_mat:
         return found_mat, ' '.join(words)
     else:
