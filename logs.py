@@ -9,8 +9,7 @@ class Color:
     BLUE = '\033[34m'
     PURPLE = '\033[35m'
     CYAN = '\033[36m'
-    WHITE = '\033[37m'
-    GRAY = '\033[90m'
+    GRAY = '\033[37m'
 
 class Logs:
     def __init__(self, warnings=False, errors=True):
