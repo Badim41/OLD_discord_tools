@@ -155,7 +155,7 @@ class ChatGPT:
         self.testing = testing
 
     async def run_all_gpt(self, prompt, mode="Fast", user_id=None, gpt_role=None):
-        self.logger.logging("run GPT", prompt)
+        self.logger.logging("run GPT", prompt, color=Color.GRAY)
         if prompt == "" or prompt is None:
             return "Пустой запрос"
 
@@ -227,7 +227,7 @@ class ChatGPT:
                 auth=True
             )
             if "!DOCTYPE" in str(result) or "https://gptgo.ai" in str(result):
-                self.logger.logging("Doker File")
+                self.logger.logging("Doker File", color=Color.GRAY)
                 # делаем задержку
                 await asyncio.sleep(delay_for_gpt)
                 return
@@ -244,10 +244,10 @@ class ChatGPT:
             provider = str(provider)
             provider = provider[provider.find("'") + 1:]
             provider = provider[:provider.find("'")]
-            self.logger.logging("PROVIDER:", provider, result, "\n")
+            self.logger.logging("PROVIDER:", provider, result, "\n", color=Color.GRAY)
             return result  # + f"\n||Провайдер: {provider}, Модель: {gpt_model}||"
         except Exception as e:
-            self.logger.logging(f"error in {str(provider)}", str(e))
+            self.logger.logging(f"error in {str(provider)}", str(e), color=Color.GRAY)
             await asyncio.sleep(delay_for_gpt)
             return ""
 
@@ -262,7 +262,7 @@ class ChatGPT:
                         model="gpt-3.5-turbo-1106",
                         messages=await get_sys_prompt(user_id, gpt_role) + chat_history
                     )
-                    self.logger.logging("ChatGPT_OFFICIAL_1", completion.choices[0].message.content)
+                    self.logger.logging("ChatGPT_OFFICIAL_1", completion.choices[0].message.content, color=Color.GRAY)
                     return completion.choices[0].message.content
                 else:
                     self.logger.logging("error: no GPT keys(2)")
@@ -287,7 +287,7 @@ class ChatGPT:
                     )
                     if not response:
                         await asyncio.sleep(delay_for_gpt)
-                    self.logger.logging("ChatGPT_OFFICIAL_2:", response)
+                    self.logger.logging("ChatGPT_OFFICIAL_2:", response, color=Color.GRAY)
                     return response
                 else:
                     self.logger.logging("error gpt-off2 no auth keys")
