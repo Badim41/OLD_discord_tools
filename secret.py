@@ -1,5 +1,3 @@
-import os
-
 import asyncio
 
 from discord_tools.sql_db import set_get_database_async
