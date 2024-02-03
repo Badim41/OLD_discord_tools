@@ -19,6 +19,7 @@ async def moderate_mat_in_sentence(sentence, bad_word=True):
 
     sentence = re.sub(r'[^а-яА-ЯёЁa-zA-Z\s]', '', sentence)
     words = sentence.split(" ")
+    logger.logging(words, color=Color.GRAY)
 
     found_mat = False
     for i, word in enumerate(words):
