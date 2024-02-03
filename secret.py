@@ -1,8 +1,9 @@
 import os
 
 class SecretKey:
-    voice_keys = "voice_avaible_keys"
-    gpt_keys = "gpt_avaible_keys"
+    voice_keys = "voice_keys"
+    gpt_keys = "gpt_keys"
+    gpt_auth = "gpt_auth"
 
 def create_secrets(key, value):
     """

@@ -147,7 +147,7 @@ class ChatGPT:
         elif isinstance(auth_keys, str):
             self.openAI_auth_keys = [auth_keys]
         elif auth_keys is None:
-            self.openAI_auth_keys = []
+            self.openAI_auth_keys = load_secret(SecretKey.gpt_auth).split(";")
 
         if save_history:
             if not os.path.exists('gpt_history'):
