@@ -11,7 +11,7 @@ from openai.types.chat import ChatCompletionMessage
 
 from secret import load_secret, SecretKey
 from sql_db import set_get_database_async
-from logs import Logs
+from logs import Logs, Color
 
 _providers = [
     # AUTH
@@ -65,15 +65,6 @@ async def remove_last_format_simbols(text, format="```"):
     return text
 
 
-async def get_sys_prompt(user_id):
-    gpt_role = await set_get_database_async(user_id, "gpt_role")
-    if gpt_role == "GPT" or not user_id:
-        sys_prompt = [{"role": "system", "content": "Ты полезный ассистент и даёшь только полезную информацию"}]
-    else:
-        sys_prompt = [{"role": "system", "content": gpt_role}]
-    return sys_prompt
-
-
 async def load_history_from_json(user_id):
     if not user_id:
         return []
@@ -107,6 +98,14 @@ async def save_history(history, user_id):
         json.dump(history, file, indent=4, default=serialize_chat_message)
 
 
+async def get_sys_prompt(user_id, gpt_role):
+    if gpt_role == "GPT" or not gpt_role or not user_id:
+        sys_prompt = [{"role": "system", "content": "Ты полезный ассистент и даёшь только полезную информацию"}]
+    else:
+        sys_prompt = [{"role": "system", "content": gpt_role}]
+    return sys_prompt
+
+
 async def clear_history(user_id):
     try:
         os.remove(f'gpt_history/{user_id}_history.json')
@@ -129,7 +128,7 @@ class ChatGPT:
             self.openAI_keys = openAI_keys
         elif isinstance(openAI_moderation, str):
             self.openAI_keys = [openAI_keys]
-        else:
+        elif openAI_keys is None:
             self.openAI_keys = load_secret(SecretKey.gpt_keys).split(";")
 
         self.moderation_queue = 0
@@ -140,14 +139,14 @@ class ChatGPT:
             self.openAI_moderation = [openAI_moderation]
         elif openAI_keys:
             self.openAI_moderation = openAI_keys
-        else:
+        elif openAI_moderation is None:
             self.openAI_moderation = load_secret(SecretKey.gpt_keys).split(";")
 
         if isinstance(auth_keys, list):
             self.openAI_auth_keys = auth_keys
         elif isinstance(auth_keys, str):
             self.openAI_auth_keys = [auth_keys]
-        else:
+        elif auth_keys is None:
             self.openAI_auth_keys = []
 
         if save_history:
@@ -157,7 +156,7 @@ class ChatGPT:
         self.logger = Logs(warnings=warnings, errors=errors)
         self.testing = testing
 
-    async def run_all_gpt(self, prompt, mode="Fast", user_id=None):
+    async def run_all_gpt(self, prompt, mode="Fast", user_id=None, gpt_role=None):
         self.logger.logging("run GPT", prompt)
         if prompt == "" or prompt is None:
             return "Пустой запрос"
@@ -176,14 +175,14 @@ class ChatGPT:
 
         if "Fast" in mode:
             for value in values:
-                answer = await self.run_official_gpt(chat_history, 1, value, user_id)
+                answer = await self.run_official_gpt(chat_history, 1, value, user_id, gpt_role)
                 if answer and prompt not in answer:
                     chat_history.append({"role": "assistant", "content": answer})
                     await save_history(chat_history, user_id)
                     return answer
 
-            functions2 = [self.one_gpt_run(provider, chat_history, 120, user_id) for provider in _providers]
-            functions2 += [self.one_gpt_run(providers, chat_history, 120, user_id, gpt_model="gpt-4") for providers in
+            functions2 = [self.one_gpt_run(provider, chat_history, 120, user_id, gpt_role) for provider in _providers]
+            functions2 += [self.one_gpt_run(providers, chat_history, 120, user_id, gpt_role, gpt_model="gpt-4") for providers in
                            [g4f.Provider.GeekGpt, g4f.Provider.Liaobots, g4f.Provider.Raycast]]
             done, pending = await asyncio.wait(functions2, return_when=asyncio.FIRST_COMPLETED)
             # Принудительное завершение оставшихся функций
@@ -200,10 +199,10 @@ class ChatGPT:
                 return result
         if "All" in mode:
 
-            functions = [self.one_gpt_run(provider, chat_history, 1, user_id) for provider in _providers]
-            functions += [self.one_gpt_run(providers, chat_history, 1, user_id, gpt_model="gpt-4") for providers in
+            functions = [self.one_gpt_run(provider, chat_history, 1, user_id, gpt_role) for provider in _providers]
+            functions += [self.one_gpt_run(providers, chat_history, 1, user_id, gpt_role, gpt_model="gpt-4") for providers in
                           [g4f.Provider.GeekGpt, g4f.Provider.Liaobots, g4f.Provider.Raycast]]
-            functions += [self.run_official_gpt(chat_history, 1, value, user_id) for value in values]
+            functions += [self.run_official_gpt(chat_history, 1, value, user_id, gpt_role) for value in values]
             results = await asyncio.gather(*functions)  # результаты всех функций
             new_results = []
             for i, result in enumerate(results):
@@ -219,13 +218,13 @@ class ChatGPT:
         self.logger.logging("error: no GPT mode")
         return "Не выбран режим GPT (это какая-то ошибка, лучше свяжитесь с разработчиком, если эта ошибка продолжит появляться)"
 
-    async def one_gpt_run(self, provider, chat_history, delay_for_gpt, user_id, gpt_model="gpt-3.5-turbo"):
+    async def one_gpt_run(self, provider, chat_history, delay_for_gpt, user_id, gpt_role, gpt_model="gpt-3.5-turbo"):
         try:
             # в зависимости от аутефикации получаем ответ
             result = await g4f.ChatCompletion.create_async(
                 model=gpt_model,
                 provider=provider,
-                messages=await get_sys_prompt(user_id) + chat_history,
+                messages=await get_sys_prompt(user_id, gpt_role) + chat_history,
                 cookies={"Fake": ""},
                 auth=True
             )
@@ -254,16 +253,16 @@ class ChatGPT:
             await asyncio.sleep(delay_for_gpt)
             return ""
 
-    async def run_official_gpt(self, chat_history, delay_for_gpt, key_gpt, user_id):
+    async def run_official_gpt(self, chat_history, delay_for_gpt, key_gpt, user_id, gpt_role):
         open_ai_keys = self.openAI_keys
         auth_keys = self.openAI_auth_keys
         if key_gpt:
             try:
-                if len(open_ai_keys) != 0:
+                if len(open_ai_keys) != 0 and open_ai_keys:
                     client = AsyncOpenAI(api_key="sk-" + open_ai_keys[0])
                     completion = await client.chat.completions.create(
                         model="gpt-3.5-turbo-1106",
-                        messages=await get_sys_prompt(user_id) + chat_history
+                        messages=await get_sys_prompt(user_id, gpt_role) + chat_history
                     )
                     self.logger.logging("ChatGPT_OFFICIAL_1", completion.choices[0].message.content)
                     return completion.choices[0].message.content
@@ -279,11 +278,11 @@ class ChatGPT:
                 return await self.run_official_gpt(chat_history, delay_for_gpt, True, user_id)
         else:
             try:
-                if len(auth_keys) != 0:
+                if len(auth_keys) != 0 and auth_keys:
                     random.shuffle(auth_keys)
                     response = await g4f.ChatCompletion.create_async(
                         model=g4f.models.gpt_35_turbo,
-                        messages=await get_sys_prompt(user_id) + chat_history,
+                        messages=await get_sys_prompt(user_id, gpt_role) + chat_history,
                         provider=g4f.Provider.OpenaiChat,
                         access_token=auth_keys[0],
                         auth=auth_keys[0]
@@ -303,6 +302,10 @@ class ChatGPT:
                 return ""
 
     async def moderation_request(self, text):
+        if not self.openAI_moderation:
+            self.logger.logging("No moderation keys", Color.RED)
+            return False, ""
+
         open_ai_moderation = self.openAI_moderation[self.moderation_queue]
         self.moderation_queue += 1
         if self.moderation_queue > len(self.openAI_moderation):
