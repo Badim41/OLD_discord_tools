@@ -1,17 +1,15 @@
-import g4f
 import asyncio
+import g4f
+import json
 import os
 import random
 import requests
 import traceback
 from openai import AsyncOpenAI
-
-import json
 from openai.types.chat import ChatCompletionMessage
 
-from secret import load_secret, SecretKey
-from sql_db import set_get_database_async
 from logs import Logs, Color
+from secret import load_secret, SecretKey
 
 _providers = [
     # AUTH
