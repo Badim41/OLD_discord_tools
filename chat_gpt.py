@@ -8,7 +8,7 @@ import traceback
 from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionMessage
 
-from logs import Logs, Color
+from discord_tools.logs import Logs, Color
 from secret import load_secret, SecretKey
 
 _providers = [
