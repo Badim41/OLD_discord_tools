@@ -1,10 +1,12 @@
+import os
 import re
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 async def moderate_mat_in_sentence(sentence, bad_word=True):
     """
     returns: mat:bool, sentence
     """
-    with open("filter_profanity_russian_cached.txt", "r", encoding="utf-8") as reader:
+    with open(os.path.join(BASE_DIR, "filter_profanity_russian_cached.txt"), "r", encoding="utf-8") as reader:
         lines = reader.readlines()
         mat_massive = [line.strip() for line in lines]
 
