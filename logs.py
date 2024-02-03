@@ -3,14 +3,14 @@ from datetime import datetime
 
 class Color:
     RESET = '\033[0m'
-    RED = '\033[38;2;255;0;0m'  # Красный
-    GREEN = '\033[38;2;0;255;0m'  # Зеленый
-    BLUE = '\033[38;2;0;0;255m'  # Синий
-    YELLOW = '\033[38;2;255;255;0m'  # Желтый
-    PURPLE = '\033[38;2;2555;0;255m'  # Пурпурный
-    CYAN = '\033[38;2;0;255;255m'  # Голубой
-    GRAY = '\033[38;2;128;128;128m'  # Серый
-    BLACK = '\033[38;2;0;0;0m'  # Черный
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    PURPLE = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+    GRAY = '\033[90m'
 
 class Logs:
     def __init__(self, warnings=False, errors=True):
