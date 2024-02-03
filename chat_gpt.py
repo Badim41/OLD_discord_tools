@@ -9,7 +9,7 @@ from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionMessage
 
 from discord_tools.logs import Logs, Color
-from secret import load_secret, SecretKey
+from discord_tools.secret import load_secret, SecretKey
 
 _providers = [
     # AUTH
