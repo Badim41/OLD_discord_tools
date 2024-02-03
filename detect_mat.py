@@ -1,5 +1,8 @@
+import logging
 import os
 import re
+from discord_tools.logs import Logs, Color
+logger = Logs(warnings=True)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 async def moderate_mat_in_sentence(sentence, bad_word=True):
@@ -20,7 +23,7 @@ async def moderate_mat_in_sentence(sentence, bad_word=True):
     for i, word in enumerate(words):
         for mat_word in mat_massive:
             if word.lower().startswith(mat_word):
-                print("маты!", word, "\nВвод:", sentence)
+                logging.logging("маты!", word, "\nВвод:", sentence, color=Color.RED)
                 words[i] = '^_^'
                 found_mat = True
                 break
