@@ -18,7 +18,7 @@ async def moderate_mat_in_sentence(sentence, bad_word=True):
         mat_massive.extend(["говн", "срал", "сраны", "срать"])
 
     sentence = re.sub(r'[^а-яА-ЯёЁa-zA-Z\s]', '', sentence)
-    words = sentence.split()
+    words = sentence.split(" ")
 
     found_mat = False
     for i, word in enumerate(words):
