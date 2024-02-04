@@ -279,7 +279,7 @@ class ChatGPT:
                 self.logger.logging("error (id gpt-off1)", e)
                 if "Error code: 429" in str(e) or "Incorrect API key provided" in str(e):
                     self.openAI_keys = self.openAI_keys[1:]
-                return await self.run_official_gpt(chat_history, delay_for_gpt, True, user_id)
+                return await self.run_official_gpt(chat_history, delay_for_gpt, True, user_id, gpt_role)
         else:
             try:
                 if len(auth_keys) != 0 and auth_keys:
