@@ -128,6 +128,8 @@ class ChatGPT:
             self.openAI_keys = [openAI_keys]
         elif openAI_keys is None:
             self.openAI_keys = load_secret(SecretKey.gpt_keys).split(";")
+        else:
+            self.openAI_keys = openAI_keys
 
         self.moderation_queue = 0
 
@@ -139,6 +141,8 @@ class ChatGPT:
             self.openAI_moderation = openAI_keys
         elif openAI_moderation is None:
             self.openAI_moderation = load_secret(SecretKey.gpt_keys).split(";")
+        else:
+            self.openAI_moderation = openAI_moderation
 
         if isinstance(auth_keys, list):
             self.openAI_auth_keys = auth_keys
@@ -146,6 +150,8 @@ class ChatGPT:
             self.openAI_auth_keys = [auth_keys]
         elif auth_keys is None:
             self.openAI_auth_keys = load_secret(SecretKey.gpt_auth).split(";")
+        else:
+            self.openAI_auth_keys = auth_keys
 
         if save_history:
             if not os.path.exists('gpt_history'):
