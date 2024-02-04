@@ -261,8 +261,11 @@ class ChatGPT:
         open_ai_keys = self.openAI_keys
         auth_keys = self.openAI_auth_keys
         if key_gpt:
+            if not open_ai_keys:
+                await asyncio.sleep(delay_for_gpt)
+                return ""
             try:
-                if len(open_ai_keys) != 0 and open_ai_keys:
+                if len(open_ai_keys) != 0:
                     client = AsyncOpenAI(api_key="sk-" + open_ai_keys[0])
                     completion = await client.chat.completions.create(
                         model="gpt-3.5-turbo-1106",
@@ -281,6 +284,9 @@ class ChatGPT:
                     self.openAI_keys = self.openAI_keys[1:]
                 return await self.run_official_gpt(chat_history, delay_for_gpt, True, user_id, gpt_role)
         else:
+            if not auth_keys:
+                await asyncio.sleep(delay_for_gpt)
+                return ""
             try:
                 if len(auth_keys) != 0 and auth_keys:
                     random.shuffle(auth_keys)
