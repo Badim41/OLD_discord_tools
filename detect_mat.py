@@ -3,7 +3,7 @@ import logging
 import os
 import re
 from discord_tools.logs import Logs, Color
-logger = Logs(warnings=True)
+logger = Logs(warnings=False)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 async def moderate_mat_in_sentence(sentence, bad_word=True):
