@@ -23,34 +23,45 @@ _providers = [
     g4f.Provider.GptChatly,
 
     # good providers
-    # g4f.Provider.GPTalk,
-    # g4f.Provider.AiAsk,  # - rate limit
+    g4f.Provider.GPTalk,
+g4f.Provider.GeminiProChat,
+g4f.Provider.Gpt6,
+    g4f.Provider.AiAsk,  # - rate limit
     # g4f.Provider.AItianhu,
     g4f.Provider.GeekGpt,  # short answer
     g4f.Provider.GptGo,
     g4f.Provider.Hashnode,
     g4f.Provider.FakeGpt,
     g4f.Provider.Aichat,
-    # g4f.Provider.MyShell,
+    g4f.Provider.MyShell,
+g4f.Provider.OnlineGpt,
+g4f.Provider.PerplexityAi,
+g4f.Provider.Poe,
+g4f.Provider.TalkAi,
     # g4f.Provider.Vercel,  # cut answer
-    # g4f.Provider.ChatgptDemo,  # error 403
+    g4f.Provider.ChatgptDemo,  # error 403
+g4f.Provider.ChatgptNext,
+g4f.Provider.Chatxyz,
+
     # g4f.Provider.ChatgptLogin,  # error 403
     # g4f.Provider.ChatgptX,  # error
     # g4f.Provider.ChatgptFree,
-    # g4f.Provider.AItianhuSpace,
-    # g4f.Provider.ChatForAi,
+    g4f.Provider.AItianhuSpace,
+g4f.Provider.AiChatOnline,
+g4f.Provider.Aura,
+
+    g4f.Provider.ChatForAi,
 
     # bad providers
     g4f.Provider.You,  # dont work
     # g4f.Provider.NoowAi,  # Not supported yet
     # g4f.Provider.GptGod,  # error list
     # g4f.Provider.FreeGpt,# wrong language
-    # g4f.Provider.ChatgptAi,  # - error ID
-    # g4f.Provider.GptGo,  # error 403
-    # g4f.Provider.GptForLove,  # error no module
+    g4f.Provider.ChatgptAi,  # - error ID
+    g4f.Provider.GptForLove,  # error no module
     # g4f.Provider.Opchatgpts,  # bad
     # g4f.Provider.Chatgpt4Online,  # - bad
-    # g4f.Provider.ChatBase,  # - bad, but you can use it
+    g4f.Provider.ChatBase,  # - bad, but you can use it
     # g4f.Provider.Llama2, # no model
 ]
 
@@ -230,7 +241,8 @@ class ChatGPT:
                 provider=provider,
                 messages=await get_sys_prompt(user_id, gpt_role) + chat_history,
                 cookies={"Fake": ""},
-                auth=True
+                auth=True,
+                timeout=30
             )
             if "!DOCTYPE" in str(result) or "https://gptgo.ai" in str(result):
                 self.logger.logging("Doker File", color=Color.GRAY)
@@ -295,7 +307,8 @@ class ChatGPT:
                         messages=await get_sys_prompt(user_id, gpt_role) + chat_history,
                         provider=g4f.Provider.OpenaiChat,
                         access_token=auth_keys[0],
-                        auth=auth_keys[0]
+                        auth=auth_keys[0],
+                        timeout = 30
                     )
                     if not response:
                         await asyncio.sleep(delay_for_gpt)
