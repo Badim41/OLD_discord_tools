@@ -15,54 +15,69 @@ _providers = [
     # AUTH
     # g4f.Provider.Raycast,
     # g4f.Provider.Phind,
-    g4f.Provider.Liaobots,  # - Doker output
+    # g4f.Provider.Liaobots,  # - Doker output & Unauth
     # g4f.Provider.Bing,
     # g4f.Provider.Bard,
     # g4f.Provider.OpenaiChat,
     # g4f.Provider.Theb,
-    g4f.Provider.GptChatly,
 
-    # good providers
-    g4f.Provider.GPTalk,
-g4f.Provider.GeminiProChat,
-g4f.Provider.Gpt6,
-    g4f.Provider.AiAsk,  # - rate limit
-    # g4f.Provider.AItianhu,
-    g4f.Provider.GeekGpt,  # short answer
-    g4f.Provider.GptGo,
-    g4f.Provider.Hashnode,
-    g4f.Provider.FakeGpt,
-    g4f.Provider.Aichat,
-    g4f.Provider.MyShell,
-g4f.Provider.OnlineGpt,
-g4f.Provider.PerplexityAi,
-g4f.Provider.Poe,
-g4f.Provider.TalkAi,
+    # Binary location error
+    # g4f.Provider.Poe,
+    # g4f.Provider.GptChatly,
+    # g4f.Provider.AItianhuSpace,
+
+
+    # g4f.Provider.GPTalk, # error 'data'
+    # g4f.Provider.GeminiProChat, # Server Error
+    # g4f.Provider.Gpt6, # ?
+    # g4f.Provider.AiChatOnline, # ?
+    # g4f.Provider.GptGo, # error
+    # g4f.Provider.Chatxyz, # error
+
+
+    # not exists
+    # g4f.Provider.ChatgptAi,
+    # g4f.Provider.OnlineGpt,
+    # g4f.Provider.ChatgptNext,
+
+
     # g4f.Provider.Vercel,  # cut answer
-    g4f.Provider.ChatgptDemo,  # error 403
-g4f.Provider.ChatgptNext,
-g4f.Provider.Chatxyz,
+    # g4f.Provider.ChatgptDemo,  # ?
+
+
 
     # g4f.Provider.ChatgptLogin,  # error 403
     # g4f.Provider.ChatgptX,  # error
     # g4f.Provider.ChatgptFree,
-    g4f.Provider.AItianhuSpace,
-g4f.Provider.AiChatOnline,
-g4f.Provider.Aura,
 
-    g4f.Provider.ChatForAi,
+    # Short answer
+    # g4f.Provider.Aura,
+    # g4f.Provider.ChatBase,
+
+    g4f.Provider.ChatForAi, # too many req
 
     # bad providers
-    g4f.Provider.You,  # dont work
     # g4f.Provider.NoowAi,  # Not supported yet
     # g4f.Provider.GptGod,  # error list
     # g4f.Provider.FreeGpt,# wrong language
-    g4f.Provider.ChatgptAi,  # - error ID
-    g4f.Provider.GptForLove,  # error no module
+    # g4f.Provider.GptForLove,  # error no OpenAI Key
     # g4f.Provider.Opchatgpts,  # bad
     # g4f.Provider.Chatgpt4Online,  # - bad
-    g4f.Provider.ChatBase,  # - bad, but you can use it
+
     # g4f.Provider.Llama2, # no model
+
+    # not working
+    g4f.Provider.You,
+    g4f.Provider.GeekGpt,
+    g4f.Provider.AiAsk,
+    g4f.Provider.Hashnode,
+    g4f.Provider.FakeGpt,
+    g4f.Provider.Aichat,
+
+    # undetected chrome driver
+    # g4f.Provider.MyShell,
+    # g4f.Provider.PerplexityAi,
+    # g4f.Provider.TalkAi,
 ]
 
 
@@ -265,7 +280,7 @@ class ChatGPT:
             self.logger.logging("PROVIDER:", provider, result, "\n", color=Color.GRAY)
             return result  # + f"\n||Провайдер: {provider}, Модель: {gpt_model}||"
         except Exception as e:
-            self.logger.logging(f"error in {str(provider)}", str(e), color=Color.GRAY)
+            self.logger.logging(f"warning in {str(provider)}", str(e), color=Color.GRAY)
             await asyncio.sleep(delay_for_gpt)
             return ""
 
