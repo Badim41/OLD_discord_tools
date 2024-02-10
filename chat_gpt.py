@@ -212,8 +212,6 @@ class ChatGPT:
                     return answer
 
             functions2 = [self.one_gpt_run(provider, chat_history, 120, user_id, gpt_role) for provider in _providers]
-            functions2 += [self.one_gpt_run(providers, chat_history, 120, user_id, gpt_role, gpt_model="gpt-4") for providers in
-                           [g4f.Provider.GeekGpt, g4f.Provider.Liaobots, g4f.Provider.Raycast]]
             done, pending = await asyncio.wait(functions2, return_when=asyncio.FIRST_COMPLETED)
             # Принудительное завершение оставшихся функций
             for task in pending:
@@ -230,8 +228,6 @@ class ChatGPT:
         if "All" in mode:
 
             functions = [self.one_gpt_run(provider, chat_history, 1, user_id, gpt_role) for provider in _providers]
-            functions += [self.one_gpt_run(providers, chat_history, 1, user_id, gpt_role, gpt_model="gpt-4") for providers in
-                          [g4f.Provider.GeekGpt, g4f.Provider.Liaobots, g4f.Provider.Raycast]]
             functions += [self.run_official_gpt(chat_history, 1, value, user_id, gpt_role) for value in values]
             results = await asyncio.gather(*functions)  # результаты всех функций
             new_results = []
@@ -248,11 +244,11 @@ class ChatGPT:
         self.logger.logging("error: no GPT mode")
         return "Не выбран режим GPT (это какая-то ошибка, лучше свяжитесь с разработчиком, если эта ошибка продолжит появляться)"
 
-    async def one_gpt_run(self, provider, chat_history, delay_for_gpt, user_id, gpt_role, gpt_model="gpt-3.5-turbo"):
+    async def one_gpt_run(self, provider, chat_history, delay_for_gpt, user_id, gpt_role):
         try:
             # в зависимости от аутефикации получаем ответ
             result = await g4f.ChatCompletion.create_async(
-                model=gpt_model,
+                model=g4f.models.default,
                 provider=provider,
                 messages=await get_sys_prompt(user_id, gpt_role) + chat_history,
                 cookies={"Fake": ""},
@@ -318,7 +314,7 @@ class ChatGPT:
                 if len(auth_keys) != 0 and auth_keys:
                     random.shuffle(auth_keys)
                     response = await g4f.ChatCompletion.create_async(
-                        model=g4f.models.gpt_35_turbo,
+                        model=g4f.models.default,
                         messages=await get_sys_prompt(user_id, gpt_role) + chat_history,
                         provider=g4f.Provider.OpenaiChat,
                         access_token=auth_keys[0],
