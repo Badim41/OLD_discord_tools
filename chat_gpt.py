@@ -201,7 +201,7 @@ class ChatGPT:
         # загрузка истории
         chat_history = await load_history_from_json(user_id)
         chat_history.append({"role": "user", "content": prompt})
-        chat_history = await trim_history(chat_history)
+        chat_history = await trim_history(chat_history, max_length=4500)
 
         if "Fast" in mode:
             for value in values:
