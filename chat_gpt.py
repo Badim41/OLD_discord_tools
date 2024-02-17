@@ -194,7 +194,7 @@ class ChatGPT:
         # Ограничение для поиска
         values = [False, True]
         if not user_id:
-            values = [False]
+            values = [False, True]
 
         # обрезка зщапроса
         prompt = prompt[:4000]
