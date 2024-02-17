@@ -186,15 +186,15 @@ class ChatGPT:
         self.logger = Logs(warnings=warnings, errors=errors)
         self.testing = testing
 
-    async def run_all_gpt(self, prompt, mode="Fast", user_id=None, gpt_role=None):
+    async def run_all_gpt(self, prompt, mode="Fast", user_id=None, gpt_role=None, limited=False):
         self.logger.logging("run GPT", prompt, color=Color.GRAY)
         if prompt == "" or prompt is None:
             return "Пустой запрос"
 
         # Ограничение для поиска
         values = [False, True]
-        if not user_id:
-            values = [False, True]
+        if limited:
+            values = [False]
 
         # обрезка зщапроса
         prompt = prompt[:4000]
