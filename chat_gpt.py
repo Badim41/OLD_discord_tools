@@ -1,6 +1,7 @@
 import asyncio
 import g4f
 import json
+import logging
 import os
 import random
 import requests
@@ -346,10 +347,11 @@ class ChatGPT:
             return False, ""
 
         if text in self.previous_requests_moderation:
-            print(f"Запрос '{text}' уже был выполнен, категория нарушений: {self.previous_requests_moderation[text][1]}")
+            self.logger.logging(f"Запрос '{text}' уже был выполнен, категория нарушений: {self.previous_requests_moderation[text][1]}", color=Color.GRAY)
             return self.previous_requests_moderation[text]
 
         if self.is_running_moderation:
+            self.logger.logging("Running!", color=Color.GRAY)
             await asyncio.sleep(0.25)
         self.is_running_moderation = True
         number = self.moderation_queue % len(self.openAI_moderation)
@@ -381,9 +383,9 @@ class ChatGPT:
         else:
             if error == 10:
                 return None, f"Request failed with status code: {response.status_code}"
-            print(f"Request failed with status code: {response.status_code}")
+            self.logger.logging(f"Request failed with status code: {response.status_code}", color=Color.GRAY)
             delay = (error + 1) * 5
-            print("Delay:", delay, text)
+            self.logger.logging("Delay:", delay, text, color=Color.GRAY)
             await asyncio.sleep(delay)
-            result1, result2 = self.moderation_request(text + ".", error=error + 1)
+            result1, result2 = asyncio.run(self.moderation_request(text + ".", error=error + 1))
             return result1, result2
