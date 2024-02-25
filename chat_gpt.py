@@ -386,6 +386,6 @@ class ChatGPT:
             self.logger.logging(f"Request failed with status code: {response.status_code}", color=Color.GRAY)
             delay = (error + 1) * 5
             self.logger.logging("Delay:", delay, text, color=Color.GRAY)
-            await asyncio.sleep(delay)
+            await asyncio.sleep(0.1)
             result1, result2 = await self.moderation_request("." + text, error=error + 1)
             return result1, result2
