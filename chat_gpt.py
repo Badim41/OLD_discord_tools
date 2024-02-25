@@ -387,5 +387,5 @@ class ChatGPT:
             delay = (error + 1) * 5
             self.logger.logging("Delay:", delay, text, color=Color.GRAY)
             await asyncio.sleep(delay)
-            result1, result2 = self.moderation_request(text + ".", error=error + 1)
+            result1, result2 = await self.moderation_request(text + ".", error=error + 1)
             return result1, result2
