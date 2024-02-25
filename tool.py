@@ -180,7 +180,7 @@ class Discord_User:
                     print(messages_was)
                     return username, last_message
             except Exception as e:
-                pass
+                return None, None
 
     async def get_new_chat_message(self, limit=10):
         """

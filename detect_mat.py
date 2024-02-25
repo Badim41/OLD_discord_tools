@@ -21,16 +21,16 @@ async def moderate_mat_in_sentence(sentence, bad_word=True):
     words = sentence_changer.split(" ")
     logger.logging("words", words, color=Color.GRAY)
 
-    found_mat = False
+    found_mats = []
     for i, word in enumerate(words):
         for mat_word in mat_massive:
             if word.lower().startswith(mat_word):
                 logger.logging("(error) маты!", word, "\nВвод:", sentence, color=Color.RED)
                 words[i] = '^_^'
-                found_mat = True
+                found_mats.append(word)
                 break
 
-    if found_mat:
-        return found_mat, ' '.join(words)
+    if found_mats:
+        return found_mats, ' '.join(words)
     else:
-        return found_mat, sentence
+        return found_mats, sentence
