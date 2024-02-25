@@ -356,7 +356,7 @@ class ChatGPT:
         self.is_running_moderation = True
         number = self.moderation_queue % len(self.openAI_moderation)
         api_key = self.openAI_moderation[number]
-        # print("Current API key:", api_key)
+        self.logger.logging(f"api_key: {api_key}", color=Color.GRAY)
         self.moderation_queue += 1
         headers = {
             "Content-Type": "application/json",
