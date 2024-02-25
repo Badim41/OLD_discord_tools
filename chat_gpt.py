@@ -158,6 +158,8 @@ class ChatGPT:
             self.openAI_keys = openAI_keys
 
         self.moderation_queue = 0
+        self.is_running_moderation = False
+        self.previous_requests_moderation = {}
 
         if isinstance(openAI_moderation, list):
             self.openAI_moderation = openAI_moderation
@@ -335,19 +337,28 @@ class ChatGPT:
                 await asyncio.sleep(delay_for_gpt)
                 return ""
 
-    async def moderation_request(self, text):
+    async def moderation_request(self, text, error=0):
         if not self.openAI_moderation:
             self.logger.logging("No moderation keys", Color.RED)
             return False, ""
 
-        open_ai_moderation = self.openAI_moderation[self.moderation_queue]
-        self.moderation_queue += 1
-        if self.moderation_queue > len(self.openAI_moderation):
-            self.moderation_queue = 0
+        if len(text) < 3:
+            return False, ""
 
+        if text in self.previous_requests_moderation:
+            print(f"Запрос '{text}' уже был выполнен, категория нарушений: {self.previous_requests_moderation[text][1]}")
+            return self.previous_requests_moderation[text]
+
+        if self.is_running_moderation:
+            await asyncio.sleep(0.25)
+        self.is_running_moderation = True
+        number = self.moderation_queue % len(self.openAI_moderation)
+        api_key = self.openAI_moderation[number]
+        # print("Current API key:", api_key)
+        self.moderation_queue += 1
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {'sk-' + open_ai_moderation}"
+            "Authorization": f"Bearer {'sk-' + api_key}"
         }
         data = {
             "input": text
@@ -355,14 +366,24 @@ class ChatGPT:
         url = "https://api.openai.com/v1/moderations"
 
         response = requests.post(url, headers=headers, json=data)
+        self.is_running_moderation = False
         if response.status_code == 200:
             result = response.json()
             flagged = result['results'][0]['flagged']
             categories = result['results'][0]['categories']
             if flagged:
                 violated_categories = [category for category, value in categories.items() if value]
+                self.previous_requests_moderation[text] = (True, violated_categories)
                 return True, violated_categories
             else:
+                self.previous_requests_moderation[text] = (False, "")
                 return False, ""
         else:
-            return None, f"Request failed with status code: {response.status_code}"
+            if error == 10:
+                return None, f"Request failed with status code: {response.status_code}"
+            print(f"Request failed with status code: {response.status_code}")
+            delay = (error + 1) * 5
+            print("Delay:", delay, text)
+            await asyncio.sleep(delay)
+            result1, result2 = self.moderation_request(text + ".", error=error + 1)
+            return result1, result2
