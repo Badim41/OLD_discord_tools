@@ -381,11 +381,11 @@ class ChatGPT:
                 self.previous_requests_moderation[text] = (False, "")
                 return False, ""
         else:
-            if error == 10:
+            if error == 100:
                 return None, f"Request failed with status code: {response.status_code}"
             self.logger.logging(f"Request failed with status code: {response.status_code}", color=Color.GRAY)
-            delay = (error + 1) * 5
+            delay = (error + 1) * 3
             self.logger.logging("Delay:", delay, text, color=Color.GRAY)
-            await asyncio.sleep(0.1)
-            result1, result2 = await self.moderation_request("." + text, error=error + 1)
+            await asyncio.sleep(0.5)
+            result1, result2 = await self.moderation_request(text, error=error + 1)
             return result1, result2
