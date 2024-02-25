@@ -356,7 +356,6 @@ class ChatGPT:
         self.is_running_moderation = True
         number = self.moderation_queue % len(self.openAI_moderation)
         api_key = self.openAI_moderation[number]
-        self.logger.logging(f"api_key: {api_key}", color=Color.GRAY)
         self.moderation_queue += 1
         headers = {
             "Content-Type": "application/json",
@@ -370,6 +369,7 @@ class ChatGPT:
         response = requests.post(url, headers=headers, json=data)
         self.is_running_moderation = False
         if response.status_code == 200:
+            self.logger.logging(f"api_key: {api_key}", color=Color.GRAY)
             result = response.json()
             flagged = result['results'][0]['flagged']
             categories = result['results'][0]['categories']
