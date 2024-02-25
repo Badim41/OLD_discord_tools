@@ -387,4 +387,3 @@ class ChatGPT:
             await asyncio.sleep(3)
             result1, result2 = await self.moderation_request(text, error=error + 1)
             return result1, result2
-
