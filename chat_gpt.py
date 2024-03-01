@@ -387,3 +387,24 @@ class ChatGPT:
             await asyncio.sleep(3)
             result1, result2 = await self.moderation_request(text, error=error + 1)
             return result1, result2
+
+    async def summarise(self, prompt, full_text, limit=10):
+        # Разделение текста на куски по 3950 символов
+        text_chunks = [full_text[i:i + 3950] for i in range(0, len(full_text), 3950)]
+
+        gpt_responses = []
+
+        i = 0
+        for chunk in text_chunks:
+            if i > limit:
+                break
+            i += 1
+            response = await self.run_all_gpt(prompt + chunk, "Fast", 0)
+            if response.startswith("I'm sorry") or response.startswith("Извините") or response.startswith(
+                    "I cannot provide") or response.startswith("Сожалею"):
+                continue
+            gpt_responses.append(response)
+
+        summarized_text = '\n'.join(gpt_responses)
+
+        return summarized_text

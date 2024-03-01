@@ -8,7 +8,6 @@ import asyncio
 import time
 
 
-
 class Discord_User:
     def __init__(self, username_on_this_server, driver=None, login="", password=""):
         if driver is None:
@@ -22,7 +21,8 @@ class Discord_User:
 
         try:
             WebDriverWait(driver, 5).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, "div.markup_a7e664.editor__66464.slateTextArea__0661c.fontSize16Padding__48818"))
+                EC.presence_of_element_located(
+                    (By.CSS_SELECTOR, "div.markup_a7e664.editor__66464.slateTextArea__0661c.fontSize16Padding__48818"))
             )
             print("[DS-LOGIN] Уже выполнен вход")
             return
@@ -85,7 +85,8 @@ class Discord_User:
                 auth_code_field = driver.find_element(By.CSS_SELECTOR, "input.inputDefault__80165.input_d266e7")
                 auth_code_field.send_keys(input("6-значный код подтверждения:"))
                 time.sleep(3)
-                button = driver.find_element(By.CSS_SELECTOR, "button.button_afdfd9.lookFilled__19298.colorBrand_b2253e.sizeMedium_c6fa98.grow__4c8a4")
+                button = driver.find_element(By.CSS_SELECTOR,
+                                             "button.button_afdfd9.lookFilled__19298.colorBrand_b2253e.sizeMedium_c6fa98.grow__4c8a4")
                 button.click()
             except Exception as e:
                 # print("no auth code", str(e)[:50])
@@ -265,7 +266,6 @@ class Discord_User:
         captcha_check = driver.find_element(by=By.CSS_SELECTOR, value="body.no-selection")
         x_coordinate, y_coordinate = 344, 537
         driver.execute_script(f"window.scrollTo({x_coordinate}, {y_coordinate});")
-
 
     async def get_new_chat_messages(self, limit=10):
         """
