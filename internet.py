@@ -81,7 +81,7 @@ class Internet:
                     pass
             return return_list[:2]
 
-    async def search(self, text_request, full_answer=True):
+    async def search(self, text_request, full_answer=True, limited=False):
         def parse_links(links):
             texts = []
 
@@ -116,7 +116,7 @@ class Internet:
 
             return texts
 
-        def search_wrapped(text_request, full_answer=True):
+        def search_wrapped(text_request, full_answer, limited):
             try:
 
                 today_prompt = f"Сегодня {datetime.date.today().strftime('%a, %b %e, %Y')}."
@@ -127,7 +127,7 @@ class Internet:
                                  "Какие 2 темы интернет-поиска помогут вам ответить на этот вопрос? Включи в запрос имя сайта, на котором точно будет эта информация"
                                  "Ответьте только в формате JSON:\n" + example_json)
 
-                search_text = asyncio.run(self.chat_gpt.run_all_gpt(search_prompt, "Fast", 0))
+                search_text = asyncio.run(self.chat_gpt.run_all_gpt(search_prompt, mode="Fast", user_id=0, limited=limited))
                 search_json = json.loads(search_text.replace("```json", "").replace("```", ""))
                 links = set()
                 for search_request in search_json.values():
@@ -142,12 +142,12 @@ class Internet:
                     background_text = asyncio.run(self.chat_gpt.summarise(f"{today_prompt}\n\n"
                                                                           "Вы предоставляете полезные и полные ответы.\n\n"
                                                                           f"Составьте список фактов из информации с сайтов, которые помогут с вопросом{text_request}:",
-                                                                          text_from_pages))
+                                                                          text_from_pages, limited=limited))
                     while len(background_text) > 4000:
                         background_text = asyncio.run(self.chat_gpt.summarise(f"{today_prompt}\n\n"
                                                                               "Вы предоставляете полезные и полные ответы.\n\n"
                                                                               f"ВЫБЕРИ ТОЛЬКО САМУЮ ВАЖНУЮ информацию, которая поможет с вопросом {text_request}",
-                                                                              background_text))
+                                                                              background_text, limited=limited))
                     if not full_answer:
                         return '\nИсточники:\n' + '\n\n'.join(links), background_text, "\n\n".join([
                             "Ты должен проанализировать информацию, и дать ответ на запрос\n"
@@ -164,10 +164,10 @@ class Internet:
                             today_prompt,
                             "# Запрос",
                             f"{text_request}"]),
-                            "Fast", 0))
+                            "Fast", 0, limited=limited))
                         return answer + '\n\nИсточники:\n' + '\n\n'.join(links)
             except Exception:
                 traceback_str = traceback.format_exc()
                 print("error in search.py:", str(traceback_str))
 
-        await asyncio.to_thread(search_wrapped, text_request, full_answer)
+        await asyncio.to_thread(search_wrapped, text_request, full_answer, limited)
