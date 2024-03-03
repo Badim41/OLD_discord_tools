@@ -220,7 +220,7 @@ class GenerateImages:
                 converted_image = image.convert("RGB")
                 converted_image.save(image_path, "PNG")
             else:
-                print("char.ai: нельзя сохранить изображение")
+                raise Exception("char.ai: нельзя сохранить изображение")
 
         image_path = f"images/{user_id}_{self.queue}_2r.png"
         try:
