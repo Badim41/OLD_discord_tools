@@ -45,8 +45,8 @@ class Character_AI:
     def __init__(self, char_id, char_token):
         self.char_id = char_id
         self.char_token = char_token
-        self.user_id = asyncio.run(self.get_user_id())
-        self.room_id = asyncio.run(self.create_chat())
+        self.user_id = None
+        self.room_id = None
 
     async def create_chat(self):
         client = characterai.PyAsyncCAI(self.char_token)
@@ -93,6 +93,10 @@ class Character_AI:
             return text, turn_id, candidate_id, chat_id, primary_candidate_id, image
 
     async def get_answer(self, message: str, username_in_answer=False, moderate_answer=ModerateParams.until_good, return_image=True):
+        if not self.room_id or not self.user_id:
+            self.user_id = await self.get_user_id()
+            self.room_id = await self.create_chat()
+
         client = characterai.PyAsyncCAI(self.char_token)
         async with client.connect() as chat2:
 
