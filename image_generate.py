@@ -225,6 +225,6 @@ class GenerateImages:
             _, image_row = await character_ai.get_answer(message=prompt, username_in_answer=False)
             await save_image()
             print("character AI done!", image_path)
-            return image_row
+            return image_path
         except Exception as e:
             print("error in character.ai:", e)
