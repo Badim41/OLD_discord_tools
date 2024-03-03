@@ -96,6 +96,7 @@ class Character_AI:
         if not self.room_id or not self.user_id:
             self.user_id = await self.get_user_id()
             self.room_id = await self.create_chat()
+            logger.logging("loaded character.ai:", color=Color.GRAY)
 
         client = characterai.PyAsyncCAI(self.char_token)
         async with client.connect() as chat2:
@@ -105,6 +106,7 @@ class Character_AI:
 
             text, turn_id, candidate_id, chat_id, primary_candidate_id, image = await self.decode_response(data,
                                                                                                            username_in_answer)
+            logger.logging("got answer character.ai:", text, color=Color.GRAY)
 
             # пока есть маты
             while True:

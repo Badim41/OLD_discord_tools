@@ -76,7 +76,6 @@ class Kandinsky_API:
         try:
             while attempts > 0:
                 response = await asyncio.to_thread(get_response)
-                print("response", response.json())
                 data = response.json()
                 if data['status'] == 'DONE':
                     return data['images']
@@ -140,6 +139,7 @@ class GenerateImages:
         image_path = f"images/{user_id}_{self.queue}_r1.png"
         with open(image_path, 'wb') as file:
             file.write(image_data_binary)
+        print("Kandinsky done!", image_path)
 
     async def image_polinations(self, prompt, user_id, zip_name):
         async def save_image_png(image_url, i):
@@ -167,7 +167,7 @@ class GenerateImages:
                     index = i * 2 + j
                     grid_image.paste(images[index], (j * image_width, i * image_height))
 
-            print("imahe path 3:", image_paths[3])
+            print("image path 3:", image_paths[3])
 
             final_path = image_paths[3].replace(".png", "FINAL.png")
             grid_image.save(final_path)
