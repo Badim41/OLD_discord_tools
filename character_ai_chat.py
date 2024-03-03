@@ -3,6 +3,8 @@ import os
 import requests
 from PIL import Image
 from discord_tools.detect_mat import moderate_mat_in_sentence
+from discord_tools.logs import Logs, Color
+logger = Logs(warnings=True)
 
 char_id_faradey = "_lpN3-bUhOIGPej2VmRYaVAWSsW7T9z3vWWVlt6SFW4"  # Faradey
 char_id_badim41 = "KNA19UuC0-8-G15wQ9XtrvUJcZphTZQ2XkwY2u-B3Og"  # Badim41
@@ -52,6 +54,7 @@ class Character_AI:
         async with client.connect() as chat2:
             chat_id = str(uuid.uuid4())
             await chat2.new_chat(self.char_id, chat_id, self.user_id)
+            logger.logging("room id:", chat_id, color=Color.GRAY)
             return chat_id
 
     async def get_user_id(self):
@@ -112,13 +115,15 @@ class Character_AI:
                     if not mat_found:
                         break
                     await chat2.rate(1, chat_id, turn_id, candidate_id)
-                    print("Оставлен плохой отзыв!")
+                    logger.logging("Оставлен плохой отзыв!", color=Color.GRAY)
                     data = await chat2.next_message(self.char_id, chat_id, turn_id)
                     text, turn_id, candidate_id, chat_id, primary_candidate_id, image = await self.decode_response(data, username_in_answer)
                 else:
                     raise Exception("Не выбран тип модерации")
 
             await chat2.rate(5, chat_id, turn_id, candidate_id)
+
+            logger.logging("Answer from character.ai:", text, image, color=Color.GRAY)
 
             if not return_image:
                 return text

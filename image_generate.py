@@ -86,18 +86,21 @@ class Kandinsky_API:
 
 class GenerateImages:
     def __init__(self, secret_keys_kandinsky: list, apis_kandinsky: list, char_tokens: list):
-        self.kandinskies = []
+        try:
+            self.kandinskies = []
 
-        for i in range(len(secret_keys_kandinsky)):
-            self.kandinskies.append(Kandinsky_API(url='https://api-key.fusionbrain.ai/',
-                                                  secret_key=secret_keys_kandinsky[i],
-                                                  api_key=apis_kandinsky[i]))
+            for i in range(len(secret_keys_kandinsky)):
+                self.kandinskies.append(Kandinsky_API(url='https://api-key.fusionbrain.ai/',
+                                                      secret_key=secret_keys_kandinsky[i],
+                                                      api_key=apis_kandinsky[i]))
 
-        self.characters_ai = []
-        for char_token in char_tokens:
-            self.characters_ai.append(Character_AI(char_id=char_id_images, char_token=char_token))
+            self.characters_ai = []
+            for char_token in char_tokens:
+                self.characters_ai.append(Character_AI(char_id=char_id_images, char_token=char_token))
 
-        self.queue = 0
+            self.queue = 0
+        except Exception as e:
+            print("Ошибка при создании генератора картинок", e)
 
     async def generate(self, prompt, user_id=0, kandinsky=True, polinations=True, character_ai=True,
                        zip_name=None):
