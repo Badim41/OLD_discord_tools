@@ -214,18 +214,17 @@ class GenerateImages:
 
     async def character_ai(self, prompt, user_id):
         async def save_image():
-            response = requests.get(image_row)
+            response = requests.get(image_url)
             if response.status_code == 200:
                 image = Image.open(io.BytesIO(response.content))
-                converted_image = image.convert("RGB")
-                converted_image.save(image_path, "PNG")
+                image.save(image_path, "PNG")
             else:
                 raise Exception("char.ai: нельзя сохранить изображение")
 
         image_path = f"images/{user_id}_{self.queue}_2r.png"
         try:
             character_ai = self.characters_ai[self.queue % len(self.characters_ai)]
-            _, image_row = await character_ai.get_answer(message=prompt, username_in_answer=False)
+            _, image_url = await character_ai.get_answer(message=prompt, username_in_answer=False)
             await save_image()
             print("character AI done!", image_path)
             return image_path
