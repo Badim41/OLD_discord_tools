@@ -71,8 +71,7 @@ class Kandinsky_API:
 
     async def check_generation(self, request_id, attempts=10, delay=1):
         def get_response():
-            requests.get(self.URL + 'key/api/v1/text2image/status/' + request_id,
-                         headers=self.AUTH_HEADERS)
+            return requests.get(self.URL + 'key/api/v1/text2image/status/' + request_id, headers=self.AUTH_HEADERS)
 
         try:
             while attempts > 0:
