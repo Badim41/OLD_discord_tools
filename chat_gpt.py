@@ -308,7 +308,7 @@ class ChatGPT:
                     self.openAI_keys = self.openAI_keys[1:]
 
                 if self.openAI_keys:
-                    return await self.run_official_gpt(chat_history, delay_for_gpt, key_gpt, user_id, gpt_role)
+                    return await self.run_official_gpt(messages, delay_for_gpt, key_gpt, user_id, gpt_role)
                 else:
                     await asyncio.sleep(delay_for_gpt)
         else:
@@ -330,7 +330,7 @@ class ChatGPT:
                 if "Could not parse your authentication token":
                     self.openAI_auth_keys = self.openAI_auth_keys[1:]
                 if self.openAI_auth_keys:
-                    return await self.run_official_gpt(chat_history, delay_for_gpt, key_gpt, user_id, gpt_role)
+                    return await self.run_official_gpt(messages, delay_for_gpt, key_gpt, user_id, gpt_role)
                 else:
                     await asyncio.sleep(delay_for_gpt)
 
