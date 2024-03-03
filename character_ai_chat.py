@@ -55,12 +55,12 @@ class Character_AI:
         if self.testing:
             print("image_url", image_url)
         try:
-            for i in range(300):
+            for i in range(60):
                 if self.testing and i % 20 == 0:
                     logger.logging(f"wait character.ai {image_url}: {i/2} s")
                 await asyncio.sleep(0.5)
                 response = requests.get(image_url)
-                if response.status_code == 200 or i == 299:
+                if response.status_code == 200 or i == 59:
                     image_path = f"temp.png"
                     image = Image.open(io.BytesIO(response.content))
                     image.save(image_path, "PNG")
