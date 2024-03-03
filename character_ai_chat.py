@@ -22,26 +22,6 @@ class ModerateParams:
     skip = "skip"
 
 
-async def wait_for_image(image_url):
-    try:
-        for i in range(1200):
-            await asyncio.sleep(0.5)
-            response = requests.get(image_url)
-            if response.status_code == 200:
-                image = Image.open(io.BytesIO(response.content))
-                image_path = f"temp.png"
-
-                # Конвертируем изображение из формата WebP в PNG
-                converted_image = image.convert("RGB")
-                converted_image.save(image_path, "PNG")
-
-                os.remove(image_path)
-        # print(f"Не удалось загрузить изображение\"{image_url}\"")
-    except Exception as e:
-        print("No such url", e)
-        pass
-
-
 class Character_AI:
     def __init__(self, char_id, char_token, testing=False):
         self.char_id = char_id
@@ -70,6 +50,27 @@ class Character_AI:
                 e = str(e)
                 user_id = e[e.rfind(" ") + 1:-1]
                 return user_id
+
+    async def wait_for_image(self, image_url):
+        if self.testing:
+            print("image_url", image_url)
+        try:
+            for i in range(1200):
+                await asyncio.sleep(0.5)
+                response = requests.get(image_url)
+                if response.status_code == 200:
+                    image = Image.open(io.BytesIO(response.content))
+                    image_path = f"temp.png"
+
+                    # Конвертируем изображение из формата WebP в PNG
+                    converted_image = image.convert("RGB")
+                    converted_image.save(image_path, "PNG")
+
+                    os.remove(image_path)
+            # print(f"Не удалось загрузить изображение\"{image_url}\"")
+        except Exception as e:
+            print("No such url", e)
+            pass
 
     async def decode_response(self, data: dict, username_in_answer):
         if self.testing:
