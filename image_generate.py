@@ -131,7 +131,7 @@ class GenerateImages:
         api = self.kandinskies[self.queue % len(self.kandinskies)]
         model_id = api.get_model()
         uuid = api.generate(prompt, model_id)
-        image_data_base64 = asyncio.to_thread(api.check_generation, request_id=uuid, attempts=10, delay=1)
+        image_data_base64 = await asyncio.to_thread(api.check_generation, request_id=uuid, attempts=10, delay=1)
         selected_image_base64 = image_data_base64[0]
         image_data_binary = base64.b64decode(selected_image_base64)
         image_path = f"images/{user_id}_{self.queue}_r1.png"
