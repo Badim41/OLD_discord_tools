@@ -218,7 +218,9 @@ class GenerateImages:
             if response.status_code == 200:
                 image = Image.open(io.BytesIO(response.content))
                 converted_image = image.convert("RGB")
-                converted_image.save(os.path.join(image_path), "PNG")
+                converted_image.save(image_path, "PNG")
+            else:
+                print("char.ai: нельзя сохранить изображение")
 
         image_path = f"images/{user_id}_{self.queue}_2r.png"
         try:
