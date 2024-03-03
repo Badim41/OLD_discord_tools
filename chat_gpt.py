@@ -313,7 +313,7 @@ class ChatGPT:
                 auth_key = self.openAI_auth_keys[self.gpt_queue % len(self.openAI_auth_keys)]
 
                 response = await g4f.ChatCompletion.create_async(
-                    model="",
+                    model="gpt-3.5-turbo",
                     messages=messages,
                     provider=g4f.Provider.OpenaiChat,
                     access_token=auth_key,
