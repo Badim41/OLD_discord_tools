@@ -70,6 +70,7 @@ class Character_AI:
                 return user_id
 
     async def decode_response(self, data: dict, username_in_answer):
+        print("JSON DATA:", data)
         turn = data["turn"]
         author = turn["author"]
         candidates = turn["candidates"][-1]
