@@ -69,14 +69,14 @@ class Kandinsky_API:
         except Exception as e:
             print("error in async_image:(id:2)", e)
 
-    async def check_generation(self, request_id, attempts=10, delay=1):
+    async def check_generation(self, request_id, attempts=50, delay=0.5):
         def get_response():
             return requests.get(self.URL + 'key/api/v1/text2image/status/' + request_id, headers=self.AUTH_HEADERS)
 
         try:
             while attempts > 0:
                 response = await asyncio.to_thread(get_response)
-                print("response", response)
+                print("response", response.json())
                 data = response.json()
                 if data['status'] == 'DONE':
                     return data['images']
