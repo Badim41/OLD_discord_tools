@@ -91,7 +91,7 @@ class Character_AI:
         image = ""
         try:
             image = data["turn"]["candidates"][0]["tti_image_rel_path"]
-            await wait_for_image(image)
+            await self.wait_for_image(image)
         except Exception:
             pass
         if username_in_answer:
