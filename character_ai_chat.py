@@ -96,7 +96,7 @@ class Character_AI:
         if not self.room_id or not self.user_id:
             self.user_id = await self.get_user_id()
             self.room_id = await self.create_chat()
-            logger.logging("loaded character.ai:", color=Color.GRAY)
+            logger.logging("loaded character.ai", self.room_id, self.user_id, self.char_id, self.char_token, color=Color.GRAY)
 
         client = characterai.PyAsyncCAI(self.char_token)
         async with client.connect() as chat2:
