@@ -89,7 +89,7 @@ class Character_AI:
         else:
             return text, turn_id, candidate_id, chat_id, primary_candidate_id, image
 
-    async def get_answer(self, message: str, username_in_answer=True, moderate_answer=ModerateParams.until_good):
+    async def get_answer(self, message: str, username_in_answer=False, moderate_answer=ModerateParams.until_good, return_image=True):
         client = characterai.PyAsyncCAI(self.char_token)
         async with client.connect() as chat2:
 
@@ -119,4 +119,8 @@ class Character_AI:
                     raise Exception("Не выбран тип модерации")
 
             await chat2.rate(5, chat_id, turn_id, candidate_id)
+
+            if not return_image:
+                return text
+
             return text, image

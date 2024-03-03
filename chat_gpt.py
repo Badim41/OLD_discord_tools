@@ -8,6 +8,7 @@ from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionMessage
 
 from discord_tools.logs import Logs, Color
+from discord_tools.character_ai_chat import Character_AI, ModerateParams
 
 _providers = [
     # AUTH
@@ -151,7 +152,7 @@ class ChatGPT:
     def __init__(self, openAI_keys: [list, str, bool], openAI_moderation: [list, str, bool],
                  auth_keys: [list, str, bool], save_history=True,
                  warnings=True,
-                 errors=True, testing=False):
+                 errors=True, testing=False, char_tokens=None, char_ids=None):
         if isinstance(openAI_moderation, list):
             self.openAI_keys = openAI_keys
         elif isinstance(openAI_moderation, str):
@@ -177,10 +178,29 @@ class ChatGPT:
             if not os.path.exists('gpt_history'):
                 os.mkdir('gpt_history')
 
+        self.char_tokens = char_tokens
+        self.char_ids = char_ids
+        self.character_queue = 0
+
         self.logger = Logs(warnings=warnings, errors=errors)
         self.testing = testing
 
     async def run_all_gpt(self, prompt, mode=ChatGPT_Mode.fast, user_id=None, gpt_role=None, limited=False):
+        def get_fake_gpt_functions(delay):
+            functions_add = [self.one_gpt_run(provider=provider, messages=messages, delay_for_gpt=delay, user_id=user_id,
+                                          gpt_role=gpt_role) for provider in _providers]
+            if self.char_ids:
+                if not self.char_tokens:
+                    for i in range(self.char_ids):
+                        self.char_tokens.append("BXjpSWm9GY21z5b3V-x3ZnudZD1G1xV7ZaoZJ1KaDVg")
+
+                number = self.character_queue % len(self.char_ids)
+                char = Character_AI(char_id=self.char_ids[number], char_token=self.char_tokens[number])
+                functions_add += [
+                    char.get_answer(message=prompt, moderate_answer=ModerateParams.replace_mat, return_image=False)]
+            return functions_add
+
+        self.gpt_queue += 1
         if self.testing:
             self.logger.logging("run GPT", prompt, color=Color.GRAY)
         else:
@@ -217,7 +237,8 @@ class ChatGPT:
                     await save_history(chat_history, user_id)
                     return answer
 
-            functions = [self.one_gpt_run(provider, messages, 120, user_id, gpt_role) for provider in _providers]
+            functions = get_fake_gpt_functions(30)
+
             done, pending = await asyncio.wait(functions, return_when=asyncio.FIRST_COMPLETED)
 
             # Принудительное завершение оставшихся функций
@@ -232,8 +253,10 @@ class ChatGPT:
                 return result
 
         elif mode == ChatGPT_Mode.all:
-            functions = [self.one_gpt_run(provider, messages, 1, user_id, gpt_role) for provider in _providers]
-            functions += [self.run_official_gpt(messages, 1, value, user_id, gpt_role) for value in values]
+            functions = [self.run_official_gpt(messages, 1, value, user_id, gpt_role) for value in values]
+
+            functions += get_fake_gpt_functions(1)
+
             results = await asyncio.gather(*functions)  # результаты всех функций
 
             new_results = []
@@ -348,6 +371,7 @@ class ChatGPT:
         if self.is_running_moderation:
             self.logger.logging("Running!", color=Color.GRAY)
             await asyncio.sleep(0.25)
+
         self.is_running_moderation = True
         number = self.moderation_queue % len(self.openAI_moderation)
         api_key = self.openAI_moderation[number]
