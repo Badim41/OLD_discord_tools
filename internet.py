@@ -10,7 +10,7 @@ import urllib.parse
 import json
 from bs4 import BeautifulSoup
 
-from chat_gpt import ChatGPT
+from discord_tools.chat_gpt import ChatGPT
 
 example_json = """{
   "тема": "запрос1",
