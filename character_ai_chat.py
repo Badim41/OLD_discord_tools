@@ -13,6 +13,12 @@ import uuid
 import characterai, asyncio
 
 
+class ModerateParams:
+    until_good = "until_good"
+    replace_mat = "replace_mat"
+    skip = "skip"
+
+
 async def wait_for_image(image_url):
     try:
         for i in range(1200):
@@ -83,7 +89,7 @@ class Character_AI:
         else:
             return text, turn_id, candidate_id, chat_id, primary_candidate_id, image
 
-    async def get_answer(self, message: str, username_in_answer=True):
+    async def get_answer(self, message: str, username_in_answer=True, moderate_answer=ModerateParams.until_good):
         client = characterai.PyAsyncCAI(self.char_token)
         async with client.connect() as chat2:
 
@@ -95,13 +101,22 @@ class Character_AI:
 
             # пока есть маты
             while True:
-                mat_found, _ = await moderate_mat_in_sentence(text)
-                if not mat_found:
+                mat_found, replaced_text = await moderate_mat_in_sentence(text)
+                if moderate_answer == ModerateParams.skip:
                     break
-                await chat2.rate(1, chat_id, turn_id, candidate_id)
-                print("Оставлен плохой отзыв!")
-                data = await chat2.next_message(self.char_id, chat_id, turn_id)
-                text, turn_id, candidate_id, chat_id, primary_candidate_id, image = await self.decode_response(data,
-                                                                                                               username_in_answer)
+                elif moderate_answer == ModerateParams.replace_mat:
+                    if mat_found:
+                        text = replaced_text
+                    break
+                elif moderate_answer == ModerateParams.until_good:
+                    if not mat_found:
+                        break
+                    await chat2.rate(1, chat_id, turn_id, candidate_id)
+                    print("Оставлен плохой отзыв!")
+                    data = await chat2.next_message(self.char_id, chat_id, turn_id)
+                    text, turn_id, candidate_id, chat_id, primary_candidate_id, image = await self.decode_response(data, username_in_answer)
+                else:
+                    raise Exception("Не выбран тип модерации")
+
             await chat2.rate(5, chat_id, turn_id, candidate_id)
             return text, image
