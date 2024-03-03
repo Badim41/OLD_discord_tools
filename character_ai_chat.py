@@ -9,7 +9,7 @@ logger = Logs(warnings=True)
 char_id_faradey = "_lpN3-bUhOIGPej2VmRYaVAWSsW7T9z3vWWVlt6SFW4"  # Faradey
 char_id_badim41 = "KNA19UuC0-8-G15wQ9XtrvUJcZphTZQ2XkwY2u-B3Og"  # Badim41
 char_id_keklol = "_iX7Jr7aKL67upcVIzWTHf1g3LtN4I2NosrGEXhpDJE"  # Kek lol
-char_id_images = "oeM-qt9UHuLg6SVodzrCUwygCrtMiO1Izwt0hDJWncQ"  # images
+char_id_images = "bQBlcCVVjfTAzv8OWK30dw7Tj-TNtKC_Rh0Z46Dx6fY"  # images
 
 import uuid
 import characterai, asyncio
