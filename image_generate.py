@@ -167,7 +167,9 @@ class GenerateImages:
                     index = i * 2 + j
                     grid_image.paste(images[index], (j * image_width, i * image_height))
 
-            final_path = image_paths[3].replace("3", "4")
+            print("imahe path 3:", image_paths[3])
+
+            final_path = image_paths[3].replace(".png", "FINAL.png")
             grid_image.save(final_path)
 
             for i in range(4):
