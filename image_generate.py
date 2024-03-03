@@ -134,7 +134,7 @@ class GenerateImages:
         image_data_base64 = asyncio.to_thread(api.check_generation, request_id=uuid, attempts=10, delay=1)
         selected_image_base64 = image_data_base64[0]
         image_data_binary = base64.b64decode(selected_image_base64)
-        image_path = f"{user_id}_{self.queue}_r1.png"
+        image_path = f"images/{user_id}_{self.queue}_r1.png"
         with open(image_path, 'wb') as file:
             file.write(image_data_binary)
 
@@ -144,7 +144,7 @@ class GenerateImages:
                 response = requests.get(image_url)
                 if response.status_code == 200:
                     image = Image.open(io.BytesIO(response.content))
-                    image_path = f"{user_id}_{self.queue}_{i}_3r.png"
+                    image_path = f"images/{user_id}_{self.queue}_{i}_3r.png"
                     image.save(image_path, "PNG")
 
                     return image_path
@@ -216,7 +216,7 @@ class GenerateImages:
                 converted_image = image.convert("RGB")
                 converted_image.save(image_path, "PNG")
 
-        image_path = f"{user_id}_{self.queue}_2r.png"
+        image_path = f"images/{user_id}_{self.queue}_2r.png"
         try:
             character_ai = self.characters_ai[self.queue % len(self.characters_ai)]
             _, image_row = await character_ai.get_answer(message=prompt, username_in_answer=False)
