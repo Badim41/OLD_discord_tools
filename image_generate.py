@@ -69,7 +69,7 @@ class Kandinsky_API:
         except Exception as e:
             print("error in async_image:(id:2)", e)
 
-    async def check_generation(self, request_id, attempts=50, delay=0.5):
+    async def check_generation(self, request_id, attempts=20, delay=1):
         def get_response():
             return requests.get(self.URL + 'key/api/v1/text2image/status/' + request_id, headers=self.AUTH_HEADERS)
 
