@@ -1,16 +1,13 @@
 import asyncio
 import g4f
 import json
-import logging
 import os
-import random
 import requests
 import traceback
 from openai import AsyncOpenAI
 from openai.types.chat import ChatCompletionMessage
 
 from discord_tools.logs import Logs, Color
-from discord_tools.secret import load_secret, SecretKey
 
 _providers = [
     # AUTH
