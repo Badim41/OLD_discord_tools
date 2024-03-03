@@ -170,4 +170,4 @@ class Internet:
                 traceback_str = traceback.format_exc()
                 print("error in search.py:", str(traceback_str))
 
-        await asyncio.to_thread(search_wrapped, text_request, full_answer, limited)
+        return await asyncio.to_thread(search_wrapped, text_request, full_answer, limited)
