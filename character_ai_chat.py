@@ -98,15 +98,18 @@ class Character_AI:
             self.room_id = await self.create_chat()
             logger.logging("loaded character.ai", self.room_id, self.user_id, self.char_id, self.char_token, color=Color.GRAY)
 
+        print("char.ai load client")
         client = characterai.PyAsyncCAI(self.char_token)
+        print("char.ai loaded client")
         async with client.connect() as chat2:
+            print("char.ai connected")
 
             data = await chat2.send_message(self.char_id, self.room_id, message,
                                             {'author_id': f'{self.user_id}'})
-
+            print("char.ai load data")
             text, turn_id, candidate_id, chat_id, primary_candidate_id, image = await self.decode_response(data,
                                                                                                            username_in_answer)
-            logger.logging("got answer character.ai:", text, color=Color.GRAY)
+            print("char.ai got answer", text)
 
             # пока есть маты
             while True:
@@ -126,7 +129,7 @@ class Character_AI:
                     text, turn_id, candidate_id, chat_id, primary_candidate_id, image = await self.decode_response(data, username_in_answer)
                 else:
                     raise Exception("Не выбран тип модерации")
-
+            print("char.ai moderated", text)
             await chat2.rate(5, chat_id, turn_id, candidate_id)
 
             logger.logging("Answer from character.ai:", text, image, color=Color.GRAY)
