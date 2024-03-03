@@ -195,7 +195,7 @@ class ChatGPT:
                         self.char_tokens.append("BXjpSWm9GY21z5b3V-x3ZnudZD1G1xV7ZaoZJ1KaDVg")
 
                 number = self.character_queue % len(self.char_ids)
-                char = Character_AI(char_id=self.char_ids[number], char_token=self.char_tokens[number])
+                char = Character_AI(char_id=self.char_ids[number], char_token=self.char_tokens[number], testing=self.testing)
                 functions_add += [
                     char.get_answer(message=prompt, moderate_answer=ModerateParams.replace_mat, return_image=False)]
             return functions_add
@@ -319,7 +319,8 @@ class ChatGPT:
                     model="gpt-3.5-turbo-1106",
                     messages=messages
                 )
-                self.logger.logging("ChatGPT_OFFICIAL_1", completion.choices[0].message.content, color=Color.GRAY)
+                if self.testing:
+                    self.logger.logging("ChatGPT_OFFICIAL_1", completion.choices[0].message.content, color=Color.GRAY)
                 return completion.choices[0].message.content
             except Exception as e:
                 self.logger.logging("error (id gpt-off1)", e)
@@ -343,7 +344,8 @@ class ChatGPT:
                     auth=auth_key,
                     timeout=30
                 )
-                self.logger.logging("ChatGPT_OFFICIAL_2:", response, color=Color.GRAY)
+                if self.testing:
+                    self.logger.logging("ChatGPT_OFFICIAL_2:", response, color=Color.GRAY)
                 return response
             except:
                 self.logger.logging("error gpt-off2", str(traceback.format_exc()))
@@ -363,13 +365,15 @@ class ChatGPT:
             return False, ""
 
         if text in self.previous_requests_moderation:
-            self.logger.logging(
-                f"Запрос '{text}' уже был выполнен, категория нарушений: {self.previous_requests_moderation[text][1]}",
-                color=Color.GRAY)
+            if self.testing:
+                self.logger.logging(
+                    f"Запрос '{text}' уже был выполнен, категория нарушений: {self.previous_requests_moderation[text][1]}",
+                    color=Color.GRAY)
             return self.previous_requests_moderation[text]
 
         if self.is_running_moderation:
-            self.logger.logging("Running!", color=Color.GRAY)
+            if self.testing:
+                self.logger.logging("Running!", color=Color.GRAY)
             await asyncio.sleep(0.25)
 
         self.is_running_moderation = True

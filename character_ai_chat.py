@@ -4,6 +4,7 @@ import requests
 from PIL import Image
 from discord_tools.detect_mat import moderate_mat_in_sentence
 from discord_tools.logs import Logs, Color
+
 logger = Logs(warnings=True)
 
 char_id_faradey = "_lpN3-bUhOIGPej2VmRYaVAWSsW7T9z3vWWVlt6SFW4"  # Faradey
@@ -42,11 +43,12 @@ async def wait_for_image(image_url):
 
 
 class Character_AI:
-    def __init__(self, char_id, char_token):
+    def __init__(self, char_id, char_token, testing=False):
         self.char_id = char_id
         self.char_token = char_token
         self.user_id = None
         self.room_id = None
+        self.testing = testing
 
     async def create_chat(self):
         client = characterai.PyAsyncCAI(self.char_token)
@@ -70,7 +72,8 @@ class Character_AI:
                 return user_id
 
     async def decode_response(self, data: dict, username_in_answer):
-        print("JSON DATA:", data)
+        if self.testing:
+            print("JSON DATA:", data)
         turn = data["turn"]
         author = turn["author"]
         candidates = turn["candidates"][-1]
@@ -93,24 +96,24 @@ class Character_AI:
         else:
             return text, turn_id, candidate_id, chat_id, primary_candidate_id, image
 
-    async def get_answer(self, message: str, username_in_answer=False, moderate_answer=ModerateParams.until_good, return_image=True):
+    async def get_answer(self, message: str, username_in_answer=False, moderate_answer=ModerateParams.until_good,
+                         return_image=True):
         if not self.room_id or not self.user_id:
             self.user_id = await self.get_user_id()
             self.room_id = await self.create_chat()
-            logger.logging("loaded character.ai", self.room_id, self.user_id, self.char_id, self.char_token, color=Color.GRAY)
+            if self.testing:
+                logger.logging("loaded character.ai", self.room_id, self.user_id, self.char_id, self.char_token,
+                               color=Color.GRAY)
 
-        print("char.ai load client")
         client = characterai.PyAsyncCAI(self.char_token)
-        print("char.ai loaded client")
         async with client.connect() as chat2:
-            print("char.ai connected")
 
             data = await chat2.send_message(self.char_id, self.room_id, message,
                                             {'author_id': f'{self.user_id}'})
-            print("char.ai load data")
-            text, turn_id, candidate_id, chat_id, primary_candidate_id, image = await self.decode_response(data,
-                                                                                                           username_in_answer)
-            print("char.ai got answer", text)
+
+            text, turn_id, candidate_id, chat_id, primary_candidate_id, image = \
+                await self.decode_response(data,
+                                           username_in_answer)
 
             # пока есть маты
             while True:
@@ -127,13 +130,15 @@ class Character_AI:
                     await chat2.rate(1, chat_id, turn_id, candidate_id)
                     logger.logging("Оставлен плохой отзыв!", color=Color.GRAY)
                     data = await chat2.next_message(self.char_id, chat_id, turn_id)
-                    text, turn_id, candidate_id, chat_id, primary_candidate_id, image = await self.decode_response(data, username_in_answer)
+                    text, turn_id, candidate_id, chat_id, primary_candidate_id, image = await self.decode_response(data,
+                                                                                                                   username_in_answer)
                 else:
                     raise Exception("Не выбран тип модерации")
-            print("char.ai moderated", text)
+
             await chat2.rate(5, chat_id, turn_id, candidate_id)
 
-            logger.logging("Answer from character.ai:", text, image, color=Color.GRAY)
+            if self.testing:
+                logger.logging("Answer from character.ai:", text, image, color=Color.GRAY)
 
             if not return_image:
                 return text
