@@ -69,7 +69,7 @@ class Kandinsky_API:
         except Exception as e:
             print("error in async_image:(id:2)", e)
 
-    def check_generation(self, request_id, attempts=10, delay=1):
+    async def check_generation(self, request_id, attempts=10, delay=1):
         try:
             while attempts > 0:
                 response = requests.get(self.URL + 'key/api/v1/text2image/status/' + request_id,
@@ -131,7 +131,7 @@ class GenerateImages:
         api = self.kandinskies[self.queue % len(self.kandinskies)]
         model_id = api.get_model()
         uuid = api.generate(prompt, model_id)
-        image_data_base64 = await asyncio.to_thread(api.check_generation, request_id=uuid, attempts=10, delay=1)
+        image_data_base64 = api.check_generation(request_id=uuid, attempts=10, delay=1)
         selected_image_base64 = image_data_base64[0]
         image_data_binary = base64.b64decode(selected_image_base64)
         image_path = f"images/{user_id}_{self.queue}_r1.png"
