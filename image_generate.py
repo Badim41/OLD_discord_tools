@@ -11,6 +11,9 @@ from PIL import Image
 
 from discord_tools.character_ai_chat import Character_AI, char_id_images
 
+if not os.path.exists('images'):
+    os.mkdir('images')
+
 
 async def get_image_size(image_path):
     try:
@@ -82,7 +85,7 @@ class Kandinsky_API:
 
 
 class GenerateImages:
-    def __init__(self, secret_keys_kandinsky:list, apis_kandinsky:list, char_tokens:list):
+    def __init__(self, secret_keys_kandinsky: list, apis_kandinsky: list, char_tokens: list):
         self.kandinskies = []
 
         for i in range(len(secret_keys_kandinsky)):
