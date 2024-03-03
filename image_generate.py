@@ -76,6 +76,7 @@ class Kandinsky_API:
         try:
             while attempts > 0:
                 response = await asyncio.to_thread(get_response)
+                print("response", response)
                 data = response.json()
                 if data['status'] == 'DONE':
                     return data['images']
