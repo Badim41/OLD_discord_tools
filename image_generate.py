@@ -97,7 +97,7 @@ class GenerateImages:
 
         self.characters_ai = []
         for char_token in char_tokens:
-            self.characters_ai.append(Character_AI(char_id=char_id_images, char_token=char_token))
+            self.characters_ai.append(Character_AI(char_id=char_id_images, char_token=char_token, testing=True))
 
         self.queue = 0
 
