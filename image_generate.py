@@ -15,7 +15,7 @@ if not os.path.exists('images'):
     os.mkdir('images')
 
 
-def get_image_size(image_path):
+async def get_image_size(image_path):
     try:
         with Image.open(image_path) as img:
             width, height = img.size
@@ -69,10 +69,13 @@ class Kandinsky_API:
         except Exception as e:
             print("error in async_image:(id:2)", e)
 
-    def check_generation(self, request_id, attempts=20, delay=1):
+    async def check_generation(self, request_id, attempts=20, delay=1):
+        def get_response():
+            return requests.get(self.URL + 'key/api/v1/text2image/status/' + request_id, headers=self.AUTH_HEADERS)
+
         try:
             while attempts > 0:
-                response = requests.get(self.URL + 'key/api/v1/text2image/status/' + request_id, headers=self.AUTH_HEADERS)
+                response = await asyncio.to_thread(get_response)
                 data = response.json()
                 if data['status'] == 'DONE':
                     return data['images']
@@ -111,9 +114,9 @@ class GenerateImages:
 
         functions = []
         if kandinsky:
-            functions.append(asyncio.to_thread(self.kandinsky_generate(prompt, user_id)))
+            functions.append(self.kandinsky_generate(prompt, user_id))
         if polinations:
-            functions.append(asyncio.to_thread(self.image_polinations(prompt, user_id, zip_name)))
+            functions.append(self.image_polinations(prompt, user_id, zip_name))
         if character_ai:
             functions.append(self.character_ai(prompt, user_id))
 
@@ -126,11 +129,11 @@ class GenerateImages:
 
         return results
 
-    def kandinsky_generate(self, prompt, user_id):
+    async def kandinsky_generate(self, prompt, user_id):
         api = self.kandinskies[self.queue % len(self.kandinskies)]
         model_id = api.get_model()
         uuid = api.generate(prompt, model_id)
-        image_data_base64 = api.check_generation(request_id=uuid, attempts=10, delay=1)
+        image_data_base64 = await api.check_generation(request_id=uuid, attempts=10, delay=1)
         selected_image_base64 = image_data_base64[0]
         image_data_binary = base64.b64decode(selected_image_base64)
         image_path = f"images/{user_id}_{self.queue}_r1.png"
@@ -139,7 +142,7 @@ class GenerateImages:
         print("Kandinsky done!", image_path)
         return image_path
 
-    def image_polinations(self, prompt, user_id, zip_name):
+    async def image_polinations(self, prompt, user_id, zip_name):
         def save_image_png(image_url, i):
             try:
                 response = requests.get(image_url)
@@ -153,7 +156,7 @@ class GenerateImages:
                 print("Ошибка при конвертации изображения:", e)
                 pass
 
-        def make_grind(image_paths):
+        async def make_grind(image_paths):
             images = [Image.open(path) for path in image_paths]
             image_width, image_height = images[0].size
             grid_width = 2 * image_width
@@ -177,9 +180,9 @@ class GenerateImages:
             all_results = []
             for i in range(4):
                 image_site = f"https://image.pollinations.ai/prompt/{prompt}?&seed={random.randint(1, 9999999)}&nologo=true"
-                result = save_image_png(image_site, i)
-                if get_image_size(result):
-                    x, y = get_image_size(result)
+                result = await asyncio.to_thread(save_image_png(image_site, i))
+                if await get_image_size(result):
+                    x, y = await get_image_size(result)
                     if x == 768 and y == 768:
                         image = Image.open(result)
                         cropped_image = image.crop((0, 0, 768, 725))
@@ -204,7 +207,7 @@ class GenerateImages:
                     with zipfile.ZipFile(zip_name, "a") as zipf:
                         zipf.write(result)
 
-            grind_image = make_grind(all_results)
+            grind_image = await make_grind(all_results)
             return grind_image
         except Exception as e:
             print("error in image_polinations:", e)
