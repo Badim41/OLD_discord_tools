@@ -188,11 +188,11 @@ class ChatGPT:
 
         self.character_queue = 0
 
-        if char_ids:
-            if not char_tokens:
-                char_tokens = []
-                for i in range(len(char_ids)):
-                    char_tokens.append("BXjpSWm9GY21z5b3V-x3ZnudZD1G1xV7ZaoZJ1KaDVg")
+        if char_tokens:
+            if not char_ids:
+                char_ids = []
+                for i in range(len(char_tokens)):
+                    char_ids.append("BXjpSWm9GY21z5b3V-x3ZnudZD1G1xV7ZaoZJ1KaDVg")
             elif len(char_ids) == len(char_tokens):
                 raise Exception("char_ids:list и char_tokens:list должны быть одинаковой длины!")
 
