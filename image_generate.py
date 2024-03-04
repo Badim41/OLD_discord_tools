@@ -180,7 +180,7 @@ class GenerateImages:
             all_results = []
             for i in range(4):
                 image_site = f"https://image.pollinations.ai/prompt/{prompt}?&seed={random.randint(1, 9999999)}&nologo=true"
-                result = await asyncio.to_thread(save_image_png(image_site, i))
+                result = await asyncio.to_thread(save_image_png, image_site, i)
                 if await get_image_size(result):
                     x, y = await get_image_size(result)
                     if x == 768 and y == 768:
