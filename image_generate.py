@@ -120,7 +120,7 @@ class GenerateImages:
         if character_ai:
             functions.append(self.character_ai(prompt, user_id))
 
-        results = [result for result in await asyncio.gather(*functions) if result]
+        results = [result for result in await asyncio.gather(*functions) if result and os.path.exists(result)]
 
         if zip_name:
             with zipfile.ZipFile(zip_name, "a") as zipf:

@@ -157,6 +157,8 @@ class ChatGPT:
             self.openAI_keys = openAI_keys
         elif isinstance(openAI_moderation, str):
             self.openAI_keys = [openAI_keys]
+        else:
+            self.openAI_keys = openAI_keys
 
         self.gpt_queue = 0
 
@@ -168,36 +170,49 @@ class ChatGPT:
             self.openAI_moderation = openAI_moderation
         elif isinstance(openAI_moderation, str):
             self.openAI_moderation = [openAI_moderation]
+        elif self.openAI_keys:
+            self.openAI_moderation = self.openAI_keys
+        else:
+            self.openAI_moderation = openAI_moderation
 
         if isinstance(auth_keys, list):
             self.openAI_auth_keys = auth_keys
         elif isinstance(auth_keys, str):
             self.openAI_auth_keys = [auth_keys]
+        else:
+            self.openAI_auth_keys = auth_keys
 
         if save_history:
             if not os.path.exists('gpt_history'):
                 os.mkdir('gpt_history')
 
-        self.char_tokens = char_tokens
-        self.char_ids = char_ids
         self.character_queue = 0
+
+        if char_ids:
+            if not char_tokens:
+                char_tokens = []
+                for i in range(len(char_ids)):
+                    char_tokens.append("BXjpSWm9GY21z5b3V-x3ZnudZD1G1xV7ZaoZJ1KaDVg")
+            elif len(char_ids) == len(char_tokens):
+                raise Exception("char_ids:list и char_tokens:list должны быть одинаковой длины!")
+
+            self.chars = [Character_AI(char_id=char_ids[number], char_token=char_tokens[number],
+                                       testing=testing) for number in range(len(char_ids))]
 
         self.logger = Logs(warnings=warnings, errors=errors)
         self.testing = testing
 
     async def run_all_gpt(self, prompt, mode=ChatGPT_Mode.fast, user_id=None, gpt_role=None, limited=False):
         def get_fake_gpt_functions(delay):
-            functions_add = [self.one_gpt_run(provider=provider, messages=messages, delay_for_gpt=delay, user_id=user_id,
-                                          gpt_role=gpt_role) for provider in _providers]
-            if self.char_ids:
-                if not self.char_tokens:
-                    for i in range(self.char_ids):
-                        self.char_tokens.append("BXjpSWm9GY21z5b3V-x3ZnudZD1G1xV7ZaoZJ1KaDVg")
+            functions_add = \
+                [self.one_gpt_run(provider=provider, messages=messages, delay_for_gpt=delay, user_id=user_id,
+                                  gpt_role=gpt_role) for provider in _providers]
 
-                number = self.character_queue % len(self.char_ids)
-                char = Character_AI(char_id=self.char_ids[number], char_token=self.char_tokens[number], testing=self.testing)
-                functions_add += [
-                    char.get_answer(message=prompt, moderate_answer=ModerateParams.replace_mat, return_image=False)]
+            if self.chars:
+                char = self.chars[self.character_queue % len(self.chars)]
+                functions_add += \
+                    [char.get_answer(message=prompt, moderate_answer=ModerateParams.replace_mat, return_image=False)]
+
             return functions_add
 
         self.gpt_queue += 1
