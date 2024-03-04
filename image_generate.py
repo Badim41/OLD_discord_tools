@@ -15,7 +15,7 @@ if not os.path.exists('images'):
     os.mkdir('images')
 
 
-async def get_image_size(image_path):
+def get_image_size(image_path):
     try:
         with Image.open(image_path) as img:
             width, height = img.size
@@ -113,7 +113,7 @@ class GenerateImages:
         if kandinsky:
             functions.append(asyncio.to_thread(self.kandinsky_generate(prompt, user_id)))
         if polinations:
-            functions.append(self.image_polinations(prompt, user_id, zip_name))
+            functions.append(asyncio.to_thread(self.image_polinations(prompt, user_id, zip_name)))
         if character_ai:
             functions.append(self.character_ai(prompt, user_id))
 
@@ -139,8 +139,8 @@ class GenerateImages:
         print("Kandinsky done!", image_path)
         return image_path
 
-    async def image_polinations(self, prompt, user_id, zip_name):
-        async def save_image_png(image_url, i):
+    def image_polinations(self, prompt, user_id, zip_name):
+        def save_image_png(image_url, i):
             try:
                 response = requests.get(image_url)
                 if response.status_code == 200:
@@ -153,7 +153,7 @@ class GenerateImages:
                 print("Ошибка при конвертации изображения:", e)
                 pass
 
-        async def make_grind(image_paths):
+        def make_grind(image_paths):
             images = [Image.open(path) for path in image_paths]
             image_width, image_height = images[0].size
             grid_width = 2 * image_width
@@ -177,9 +177,9 @@ class GenerateImages:
             all_results = []
             for i in range(4):
                 image_site = f"https://image.pollinations.ai/prompt/{prompt}?&seed={random.randint(1, 9999999)}&nologo=true"
-                result = await save_image_png(image_site, i)
-                if await get_image_size(result):
-                    x, y = await get_image_size(result)
+                result = save_image_png(image_site, i)
+                if get_image_size(result):
+                    x, y = get_image_size(result)
                     if x == 768 and y == 768:
                         image = Image.open(result)
                         cropped_image = image.crop((0, 0, 768, 725))
@@ -204,7 +204,7 @@ class GenerateImages:
                     with zipfile.ZipFile(zip_name, "a") as zipf:
                         zipf.write(result)
 
-            grind_image = await make_grind(all_results)
+            grind_image = make_grind(all_results)
             return grind_image
         except Exception as e:
             print("error in image_polinations:", e)
