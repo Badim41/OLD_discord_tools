@@ -204,11 +204,9 @@ class ChatGPT:
 
     async def run_all_gpt(self, prompt, mode=ChatGPT_Mode.fast, user_id=None, gpt_role=None, limited=False):
         def get_fake_gpt_functions(delay):
-            functions_add = []
-            if limited and mode == ChatGPT_Mode.fast:
-                functions_add += \
-                    [self.one_gpt_run(provider=provider, messages=messages, delay_for_gpt=delay, user_id=user_id,
-                                      gpt_role=gpt_role) for provider in _providers]
+            functions_add = \
+                [self.one_gpt_run(provider=provider, messages=messages, delay_for_gpt=delay, user_id=user_id,
+                                  gpt_role=gpt_role) for provider in _providers]
 
             if self.chars:
                 char = self.chars[self.character_queue % len(self.chars)]
