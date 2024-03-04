@@ -103,7 +103,7 @@ class GenerateImages:
 
     async def generate(self, prompt, user_id=0, kandinsky=True, polinations=True, character_ai=True,
                        zip_name=None):
-
+        self.queue += 1
         if zip_name:
             text_name = f"prompt_{user_id}.txt"
             with zipfile.ZipFile(zip_name, "w") as zipf:
