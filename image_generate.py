@@ -69,13 +69,10 @@ class Kandinsky_API:
         except Exception as e:
             print("error in async_image:(id:2)", e)
 
-    async def check_generation(self, request_id, attempts=20, delay=1):
-        def get_response():
-            return requests.get(self.URL + 'key/api/v1/text2image/status/' + request_id, headers=self.AUTH_HEADERS)
-
+    def check_generation(self, request_id, attempts=20, delay=1):
         try:
             while attempts > 0:
-                response = await asyncio.to_thread(get_response)
+                response = requests.get(self.URL + 'key/api/v1/text2image/status/' + request_id, headers=self.AUTH_HEADERS)
                 data = response.json()
                 if data['status'] == 'DONE':
                     return data['images']
@@ -114,7 +111,7 @@ class GenerateImages:
 
         functions = []
         if kandinsky:
-            functions.append(self.kandinsky_generate(prompt, user_id))
+            functions.append(asyncio.to_thread(self.kandinsky_generate(prompt, user_id)))
         if polinations:
             functions.append(self.image_polinations(prompt, user_id, zip_name))
         if character_ai:
@@ -129,11 +126,11 @@ class GenerateImages:
 
         return results
 
-    async def kandinsky_generate(self, prompt, user_id):
+    def kandinsky_generate(self, prompt, user_id):
         api = self.kandinskies[self.queue % len(self.kandinskies)]
         model_id = api.get_model()
         uuid = api.generate(prompt, model_id)
-        image_data_base64 = await api.check_generation(request_id=uuid, attempts=10, delay=1)
+        image_data_base64 = api.check_generation(request_id=uuid, attempts=10, delay=1)
         selected_image_base64 = image_data_base64[0]
         image_data_binary = base64.b64decode(selected_image_base64)
         image_path = f"images/{user_id}_{self.queue}_r1.png"
