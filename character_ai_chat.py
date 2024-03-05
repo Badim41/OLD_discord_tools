@@ -98,49 +98,53 @@ class Character_AI:
 
     async def get_answer(self, message: str, username_in_answer=False, moderate_answer=ModerateParams.until_good,
                          return_image=True):
-        if not self.room_id or not self.user_id:
-            self.user_id = await self.get_user_id()
-            self.room_id = await self.create_chat()
-            if self.testing:
-                logger.logging("loaded character.ai", self.room_id, self.user_id, self.char_id, self.char_token,
-                               color=Color.GRAY)
+        try:
+            if not self.room_id or not self.user_id:
+                self.user_id = await self.get_user_id()
+                self.room_id = await self.create_chat()
+                if self.testing:
+                    logger.logging("loaded character.ai", self.room_id, self.user_id, self.char_id, self.char_token,
+                                   color=Color.GRAY)
 
-        client = characterai.PyAsyncCAI(self.char_token)
-        async with client.connect() as chat2:
+            client = characterai.PyAsyncCAI(self.char_token)
+            async with client.connect() as chat2:
 
-            data = await chat2.send_message(self.char_id, self.room_id, message,
-                                            {'author_id': f'{self.user_id}'})
+                data = await chat2.send_message(self.char_id, self.room_id, message,
+                                                {'author_id': f'{self.user_id}'})
 
-            text, turn_id, candidate_id, chat_id, primary_candidate_id, image = \
-                await self.decode_response(data,
-                                           username_in_answer)
+                text, turn_id, candidate_id, chat_id, primary_candidate_id, image = \
+                    await self.decode_response(data,
+                                               username_in_answer)
 
-            # пока есть маты
-            while True:
-                mat_found, replaced_text = await moderate_mat_in_sentence(text)
-                if moderate_answer == ModerateParams.skip:
-                    break
-                elif moderate_answer == ModerateParams.replace_mat:
-                    if mat_found:
-                        text = replaced_text
-                    break
-                elif moderate_answer == ModerateParams.until_good:
-                    if not mat_found:
+                # пока есть маты
+                while True:
+                    mat_found, replaced_text = await moderate_mat_in_sentence(text)
+                    if moderate_answer == ModerateParams.skip:
                         break
-                    await chat2.rate(1, chat_id, turn_id, candidate_id)
-                    logger.logging("Оставлен плохой отзыв!", color=Color.GRAY)
-                    data = await chat2.next_message(self.char_id, chat_id, turn_id)
-                    text, turn_id, candidate_id, chat_id, primary_candidate_id, image = await self.decode_response(data,
-                                                                                                                   username_in_answer)
-                else:
-                    raise Exception("Не выбран тип модерации")
+                    elif moderate_answer == ModerateParams.replace_mat:
+                        if mat_found:
+                            text = replaced_text
+                        break
+                    elif moderate_answer == ModerateParams.until_good:
+                        if not mat_found:
+                            break
+                        await chat2.rate(1, chat_id, turn_id, candidate_id)
+                        logger.logging("Оставлен плохой отзыв!", color=Color.GRAY)
+                        data = await chat2.next_message(self.char_id, chat_id, turn_id)
+                        text, turn_id, candidate_id, chat_id, primary_candidate_id, image = await self.decode_response(data,
+                                                                                                                       username_in_answer)
+                    else:
+                        raise Exception("Не выбран тип модерации")
 
-            await chat2.rate(5, chat_id, turn_id, candidate_id)
+                await chat2.rate(5, chat_id, turn_id, candidate_id)
 
-            if self.testing:
-                logger.logging("Answer from character.ai:", text, image, color=Color.GRAY)
+                if self.testing:
+                    logger.logging("Answer from character.ai:", text, image, color=Color.GRAY)
+        except Exception as e:
+            logger.logging("character AI error:", str(e), color=Color.RED)
+            text, image = "", ""
 
-            if not return_image:
-                return text
+        if not return_image:
+            return text
 
-            return text, image
+        return text, image
